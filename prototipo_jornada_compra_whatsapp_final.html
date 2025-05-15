@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jornada de Compra - WhatsApp & E-commerce</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .container {
+      width: 360px;
+      height: 640px;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      box-sizing: border-box;
+      position: relative;
+      overflow: hidden;
+    }
+    .header {
+      height: 60px;
+      background: #075e54;
+      border-radius: 20px 20px 0 0;
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      font-weight: 600;
+      font-size: 18px;
+      user-select: none;
+      box-shadow: inset 0 -2px 4px rgba(0,0,0,0.15);
+    }
+    .progress {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 10px 0 10px;
+    }
+    .progress div {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ddd;
+      transition: background-color 0.3s ease;
+    }
+    .progress div.active {
+      background: #25d366;
+      box-shadow: 0 0 6px #25d366;
+    }
+
+    /* E-commerce style steps */
+    .step {
+      flex: 1;
+      padding: 20px 24px;
+      box-sizing: border-box;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .step.active {
+      display: flex;
+    }
+    .cart-items {
+      flex-grow: 1;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #ddd;
+    }
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+    .cart-item-name {
+      font-weight: 600;
+      font-size: 16px;
+      color: #333;
+    }
+    .cart-item-price {
+      font-weight: 500;
+      font-size: 16px;
+      color: #666;
+    }
+    .total {
+      font-weight: 700;
+      font-size: 18px;
+      color: #111;
+      margin-bottom: 24px;
+      text-align: right;
+    }
+    .btn-primary {
+      background: #25d366;
+      color: white;
+      border: none;
+      border-radius: 24px;
+      padding: 14px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgb(37 211 102 / 0.6);
+      user-select: none;
+      transition: background-color 0.3s ease;
+    }
+    .btn-primary:hover {
+      background: #1aa34a;
+    }
+
+	.chat-window {
+	  flex: 1;
+	  background: #ece5dd;
+	  border-radius: 0 0 20px 20px;
+	  padding: 16px;
+	  display: flex;
+	  flex-direction: column;
+	  overflow: hidden;
+	  position: relative;
+	}
+
+	.chat-content {
+	  position: absolute;
+	  top: 16px;
+	  bottom: 16px;
+	  left: 16px;
+	  right: 16px;
+	  overflow-y: auto;
+	  scrollbar-width: none;
+	  display: flex;
+	  flex-direction: column;
+	  gap: 12px;
+	}
+
+	.chat-content::-webkit-scrollbar {
+	  display: none;
+	}
+    .msg {
+      max-width: 75%;
+      background: white;
+      padding: 12px 16px;
+      border-radius: 8px 8px 8px 0;
+      box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
+      font-size: 15px;
+      line-height: 1.4;
+      color: #262626;
+      user-select: none;
+      animation: fadeIn 0.4s ease forwards;
+    }
+    .msg strong {
+      font-weight: 700;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .quick-replies {
+      display: flex;
+      flex-direction: column;
+      margin-top: 8px;
+      gap: 8px;
+    }
+    .quick-replies button {
+      background: #25d366;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 16px;
+      font-size: 15px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgb(37 211 102 / 0.5);
+      transition: background-color 0.2s ease;
+      text-align: center;
+      user-select: none;
+    }
+    .quick-replies button:hover {
+      background: #1ebe57;
+    }
+
+    /* Fade-in animation */
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(10px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    /* Biometric animation styles */
+    .scanner-svg {
+      margin: 16px auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="main" aria-label="Jornada de Compra WhatsApp e E-commerce">
+    <div class="header" aria-live="polite">E-commerce XPTO / WhatsApp</div>
+    <div class="progress" aria-hidden="true">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+
+    <!-- Step 1: Carrinho -->
+    <div id="step1" class="step active" aria-label="Compra iniciada">
+      <h2>🛒 Seu Carrinho</h2>
+      <div class="cart-items" aria-live="polite">
+        <div class="cart-item">
+          <div class="cart-item-name">Mouse Sem Fio BettDow</div>
+          <div class="cart-item-price">R$ 59,90</div>
+        </div>
+        <div class="cart-item">
+          <div class="cart-item-name">Fone de Ouvido JBL</div>
+          <div class="cart-item-price">R$ 139,90</div>
+        </div>
+      </div>
+      <div class="total">Total: R$ 199,80</div>
+      <button class="btn-primary" onclick="nextStep(2)">Finalizar Compra</button>
+    </div>
+
+    <!-- Step 2: Confirmação de pagamento -->
+    <div id="step2" class="step" aria-label="Confirmação de pagamento">
+      <h2>💳 Confirmação de Pagamento</h2>
+      <p>Revise seu pedido e confirme a compra.</p>
+      <div class="cart-items" aria-live="polite">
+        <div class="cart-item">
+          <div class="cart-item-name">Mouse Sem Fio BettDow</div>
+          <div class="cart-item-price">R$ 59,90</div>
+        </div>
+        <div class="cart-item">
+          <div class="cart-item-name">Fone de Ouvido JBL</div>
+          <div class="cart-item-price">R$ 139,90</div>
+        </div>
+      </div>
+      <div class="total">Total: R$ 199,80</div>
+      <button class="btn-primary" onclick="nextStep('whatsappStep')">Validar Compra</button>
+    </div>
+
+    <!-- Step 3 e 4 (WhatsApp estilo conversa) -->
+	<div id="whatsappStep" class="step" aria-live="polite" aria-atomic="true" aria-label="Validação via WhatsApp">
+	  <div class="chat-window">
+	    <div class="chat-content" id="chatWindow" role="log" aria-live="polite" aria-relevant="additions">
+	      <!-- Mensagens vão aparecer aqui -->
+	    </div>
+	  </div>
+	</div>
+    <script>
+      const chatWindow = document.getElementById('chatWindow');
+
+      let step = 1;
+
+      // Atualiza a barra de progresso
+      function updateProgress(stepNum) {
+        const dots = document.querySelectorAll('.progress div');
+        dots.forEach((dot, idx) => {
+          dot.classList.toggle('active', idx < stepNum);
+        });
+      }
+
+      // Mostra a etapa correta e atualiza progresso
+      function nextStep(toStep) {
+        // Esconde todas as steps
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+
+        if (toStep === 'whatsappStep') {
+          document.getElementById('whatsappStep').classList.add('active');
+          step = 3;
+          startWhatsAppFlow();
+          updateProgress(3);
+        } else if (typeof toStep === 'number') {
+          document.getElementById('step' + toStep).classList.add('active');
+          step = toStep;
+          updateProgress(toStep);
+        }
+      }
+
+      // Simula fluxo WhatsApp (steps 3 e 4 no chat)
+      function startWhatsAppFlow() {
+        chatWindow.innerHTML = '';
+        addMessage("Olá! Sua compra foi iniciada com sucesso. Veja as informações:");
+        setTimeout(() => {
+          addMessage("🛍 E-commerce XPTO<br>📦 Mouse Sem Fio BettDow<br>📦 Fone de Ouvido JBL<br>💰 R$ 199,80");
+        }, 1500);
+
+        setTimeout(() => {
+          addMessage("Como você prefere validar a compra?", true, [
+            { label: "Biometria Facial", action: () => chooseMethod('biometria') },
+            { label: "Ligação Telefônica", action: () => chooseMethod('telefone') }
+          ]);
+        }, 3500);
+      }
+
+      // Adiciona uma mensagem no chat, com opções de respostas rápidas se houver
+      function addMessage(text, withReplies = false, replies = []) {
+	  const msg = document.createElement('div');
+	  msg.className = 'msg';
+	  msg.innerHTML = text;
+	  chatWindow.appendChild(msg);
+
+	  scrollToBottom();
+
+	  if (withReplies && replies.length > 0) {
+	    const repliesDiv = document.createElement('div');
+	    repliesDiv.className = 'quick-replies';
+	    replies.forEach(reply => {
+	      const btn = document.createElement('button');
+	      btn.textContent = reply.label;
+	      btn.onclick = () => {
+		clearReplies();
+		reply.action();
+	      };
+	      repliesDiv.appendChild(btn);
+	    });
+	    chatWindow.appendChild(repliesDiv);
+	    scrollToBottom();
+	  }
+      }
+
+      function clearReplies() {
+        const repliesDiv = chatWindow.querySelector('.quick-replies');
+        if (repliesDiv) repliesDiv.remove();
+      }
+
+      // Quando usuário escolhe método
+      function chooseMethod(method) {
+        if (method === 'biometria') {
+          addMessage("Você escolheu validação por Biometria Facial.");
+          setTimeout(() => {
+            showBiometricValidation();
+          }, 1000);
+        } else if (method === 'telefone') {
+          addMessage("Você escolheu validação por ligação telefônica.");
+          setTimeout(() => {
+            addMessage("Ligaremos para seu telefone. (Simulação finalizada)");
+          }, 1000);
+        }
+      }
+      
+function scrollToBottom() {
+  const chatContent = document.querySelector('.chat-content');
+  chatContent.scrollTop = chatContent.scrollHeight;
+}
+
+function showBiometricValidation() {
+  clearReplies();
+  
+  const msg = document.createElement('div');
+  msg.className = 'msg';
+  msg.innerHTML = `
+    <strong>Validando biometria...</strong>
+    <svg class="scanner-svg" width="120" height="120" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="40" stroke="#25d366" stroke-width="5" fill="none" opacity="0.3"/>
+      <circle cx="50" cy="50" r="40" stroke="#25d366" stroke-width="5" fill="none" stroke-dasharray="251.2" stroke-dashoffset="251.2">
+        <animate attributeName="stroke-dashoffset" from="251.2" to="0" dur="2s" repeatCount="1" fill="freeze"/>
+      </circle>
+      <circle cx="50" cy="50" r="10" fill="#25d366" opacity="0.7">
+        <animate attributeName="r" values="10;14;10" dur="2s" repeatCount="1" fill="freeze"/>
+        <animate attributeName="opacity" values="0.7;0.3;0.7" dur="2s" repeatCount="1" fill="freeze"/>
+      </circle>
+    </svg>
+  `;
+  
+  chatWindow.appendChild(msg);
+  scrollToBottom();
+
+  setTimeout(() => {
+    addMessage("<strong>Validação biométrica bem-sucedida! ✅</strong>");
+    
+    setTimeout(() => {
+      addMessage("<strong>Biometria validada! <br> Compra finalizada com sucesso. 🛒</strong>");
+      updateProgress(5);
+      scrollToBottom();
+    }, 1500);
+  }, 2500);
+}
+		
+
+        
+    </script>
+  </div>
+</body>
+</html>
+
